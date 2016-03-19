@@ -5,6 +5,7 @@ import scala.collection.JavaConversions._
 // import play.api.libs.json._
 
 import java.lang.Exception
+import java.text.SimpleDateFormat
 
 import com.ebay.services.client.ClientConfig
 import com.ebay.services.client.FindingServiceClientFactory
@@ -96,18 +97,31 @@ object FindItem {
 
     val shippingInfo = item.getShippingInfo
     if (shippingInfo != null) {   // result is from Java, hence != null
-      reportStr.append("shippingInfo:" + "\n")
+      reportStr.append("shippingInfo:\n")
       reportStr.append("  type: " + shippingInfo.getShippingType + "\n")
       reportStr.append("  shipToLocations: " + shippingInfo.getShipToLocations + "\n")
       reportStr.append("  expeditedShipping: " + shippingInfo.isExpeditedShipping + "\n")
       reportStr.append("  oneDayShippingAvailable: " + shippingInfo.isOneDayShippingAvailable + "\n")
       reportStr.append("  handlingTime: " + shippingInfo.getHandlingTime + "\n")
-    } else {
-      reportStr.append("shippingInfo: null" + "\n")
-    }
+    } else reportStr.append("shippingInfo: null\n")
 
     reportStr.append("sellingStatus: " + item.getSellingStatus + "\n")
-    reportStr.append("listingInfo: " + item.getListingInfo + "\n")
+
+    val listingInfo = item.getListingInfo
+    if (listingInfo != null) {
+      reportStr.append("listingInfo:\n")
+      reportStr.append("   listingType: " + listingInfo.getListingType + "\n")
+      reportStr.append("   buyItNowAvailable: " + listingInfo.isBuyItNowAvailable + "\n")
+      reportStr.append("   buyItNowPrice: " + listingInfo.getBuyItNowPrice + "\n")
+      reportStr.append("   bestOfferEnabled: " + listingInfo.isBestOfferEnabled + "\n")
+      val endTime = listingInfo.getEndTime
+      if (endTime != null) {
+        val dateFormatter = new SimpleDateFormat("MM/dd/yyyy HH:MM:SS z")
+        reportStr.append("   endTime: " + dateFormatter.format(endTime.getTime()) + "\n")
+      } else reportStr.append("   endTime: null\n")
+      reportStr.append("   any: " + listingInfo.getAny + "\n")
+    } else reportStr.append("listingInfo: null" + "\n")
+
     reportStr.append("returnsAccepted: " + item.isReturnsAccepted + "\n")
     reportStr.append("galleryPlusPictureURL: " + item.getGalleryPlusPictureURL + "\n")
     reportStr.append("compatibility: " + item.getCompatibility + "\n")
