@@ -24,13 +24,20 @@ object FindItem {
       // show usage lines and exit
       usage()
 
+    // a required environment variable with the value of your
+    // eBay API Application ID
+    val eBayApplicationId = sys.env.get("EBAY_API_APP_ID")
+
+    if (eBayApplicationId.isEmpty)
+      // request that this environment variable must be set and exit
+      missingEnvirVar()
+
+
     try {
       // initialize service end-point configuration
       val config = new ClientConfig()
 
-      val eBayApplicationId = "put-here-your-eBay-API-application-ID"
-
-      config.setApplicationId(eBayApplicationId)
+      config.setApplicationId(eBayApplicationId.get)
 
       //create a service client
       val serviceClient =
@@ -48,7 +55,7 @@ object FindItem {
 
       request.setPaginationInput(pi)
 
-      //call service
+      //call service (rate-limiting by the eBay API can still occur)
       val result = serviceClient.findItemsByKeywords(request)
 
       //output result
@@ -67,8 +74,16 @@ object FindItem {
   }
 
   def usage() {
-    println("Usage:\n\tFindItem keywords to search...")
+    println("Usage:\n\tFindItem keywords to search...\n\n" +
+            "You need to set the environment variable EBAY_API_APP_ID " +
+            "with the value of a valid eBay API Application ID.")
     sys.exit(1)
+  }
+
+  def missingEnvirVar() {
+    System.err.println("Error: Environment variable EBAY_API_APP_ID must " +
+                       "have the value of a valid eBay API Application ID.")
+    sys.exit(2)
   }
 
   def reportItem(item: SearchItem) {

@@ -6,6 +6,11 @@ Find items if you want to buy them from eBay
 
 To find for an auction for a new Apple 15 inches MacBook laptop:
 
+     # set required environment variable
+     
+     EBAY_API_APP_ID="my eBay API Application ID"
+     export EBAY_API_APP_ID
+      
      ./FindItem.scala  new apple macbook 15 laptop
           itemId: 291555615515
           title: NEW SEALED 2015 APPLE 15" MACBOOK PRO 2.2GHz i7 16GB 256GB MJLQ2LL/A RETINA
@@ -63,6 +68,10 @@ You need to download the eBay Java SDK archive at [https://go.developer.ebay.com
 Unzip the archive and add the `src/lib/finding.jar`
 and the `src/lib/log4j-1.2.16.jar` JAR files to
 your CLASSPATH.
+
+Set the environment variable `EBAY_API_APP_ID` with
+the value of your eBay API Application ID you created
+above.
 
 # Possible improvements
 
