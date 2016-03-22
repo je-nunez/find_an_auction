@@ -2,6 +2,11 @@
 
 Find items if you want to buy them from eBay
 
+# WIP
+
+This project is a *work in progress*. The implementation is *incomplete* and
+subject to change. The documentation can be inaccurate.
+
 # Example:
 
 To find for an auction for a new Apple 15 inches MacBook laptop:
