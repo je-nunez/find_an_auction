@@ -1,11 +1,14 @@
 #!/usr/bin/env scala -deprecation -J-Xmx4g -J-XX:NewRatio=4
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
 
 // import play.api.libs.json._
 
 import java.lang.Exception
 import java.text.SimpleDateFormat
+
+// import org.apache.log4j.{Logger,Level}
 
 import com.ebay.services.client.ClientConfig
 import com.ebay.services.client.FindingServiceClientFactory
@@ -19,7 +22,12 @@ import com.ebay.services.finding.SearchItem
 
 object FindItem {
 
-  def main(cmdLineArgs: Array[String]) {
+  // this is a special key in the map of the command-line arguments:
+  // the value of this key in the parsing of the command-line arguments will
+  // the keywords to search for items in auctions
+  val argKeyForKeywordSearch = "auctionKeywords"
+
+  def main(cmdLineArgs: Array[String]) : Unit = {
 
     // these are the available item filters to request as necessary conditions
     // to satisfy by the server. E.g., filters as to a max-price limit, etc,
@@ -27,35 +35,138 @@ object FindItem {
     val availableItemFilters =
       ItemFilterType.values().map(_.toString.toLowerCase)
 
-    if (cmdLineArgs.length == 0)
-      // show usage lines and exit
-      usage(availableItemFilters)
+    if (cmdLineArgs.length == 0) {
+      // show usage lines and exit with exit-code 1
+      showUsage(availableItemFilters, 1)
+    }
 
     // a required environment variable with the value of your
     // eBay API Application ID
     val eBayApplicationId = sys.env.get("EBAY_API_APP_ID")
 
-    if (eBayApplicationId.isEmpty)
-      // request that this environment variable must be set and exit
-      missingEnvirVar()
+    if (eBayApplicationId.isEmpty) {
+      errorMissingEnvirVar()    // and exits this program
+    }
 
+    val cmdLineOpts = parseCmdLine(cmdLineArgs, availableItemFilters)
+    if (!cmdLineOpts.contains(argKeyForKeywordSearch)) {
+      errorCantFindSearchKeywords(cmdLineOpts)
+    }
+
+    eBayWork(eBayApplicationId.get, cmdLineOpts)
+  }
+
+  def showUsage(availableFilters: Seq[String], exitCode: Int): Unit = {
+
+    var usageStr = new StringBuilder(4*1024)
+
+    usageStr.append("Usage:\n\tFindItem [--filter1 value1] " +
+                    "[--filter2 value2 ...] keywords to search...\n\n")
+
+    usageStr.append("Possible options:\n")
+    availableFilters foreach
+      (filter => usageStr.append(s"    --$filter value\n"))
+
+    usageStr.append("\nYou need to set the environment variable EBAY_API_APP_ID " +
+                    "with the value of a valid eBay API Application ID.")
+
+    println(usageStr)
+    sys.exit(exitCode)
+  }
+
+  def errorMissingEnvirVar(): Unit = {
+    System.err.println("Error: Environment variable EBAY_API_APP_ID must " +
+                       "have the value of a valid eBay API Application ID.")
+    sys.exit(2)
+  }
+
+  def errorCantFindSearchKeywords(foundOptions: Map[String, String]): Unit = {
+    System.err.println("Error: Couldn't find item search keywords in the " +
+                       "command-line. Found these options:\n\t" +
+                       foundOptions.toString)
+    sys.exit(3)
+  }
+
+  def parseCmdLine(cmdLineArgs: Array[String], validOptions: Seq[String]): Map[String, String] = {
+    // return a list of tuples (optionName, optionValue) ... with the options and their values
+    // given in the cmdLineArgs and which are in the universe of validOptions. For an option
+    // --optName where this optName is not in validOptions, then exit the program, since it is not
+    // an allowable option.
+    //  Note: we could have used 'scopt' package to parse the cmd-line, but we don't know in fact
+    //        the validOptions and their type-values they should have: we just take all
+    //        eBay's ItemFilterType.values(), which are many, as allowable cmd-line options for
+    //        this program, whose values are String, and pass these values as the user gives them
+    //        to the underlying eBay Finding Filter service to validate it, because there are many
+    //        and we can't know the syntactic/semantic restrictions for each.
+
+    // all auction filters takes two tokens, '--filterName value', and the last string contains the
+    // search keywords for the auction: we add an empty string to make the length of the array even
+
+    var cmdArgs = cmdLineArgs.to[ArrayBuffer]
+    if (cmdArgs.length % 2 == 1) { cmdArgs += "" }
+
+    var auctionKeywords: String = ""    // ie., the auction search keywords
+
+    val listOptVals = cmdArgs.iterator.sliding(2,1).toList.collect {
+        case Seq("--help", ignored: String) => { showUsage(validOptions, 0) }
+        case Seq(auctionKeyword: String, "") => {
+          if (auctionKeywords.isEmpty) {
+            auctionKeywords = auctionKeyword
+            argKeyForKeywordSearch -> auctionKeyword
+          } else {
+            // This is not expected to happen, although there is no side effect since the program
+            // exits immediately (and it is difficult to check the formal specification, since it
+            // is only given by whatever filter names the auction search accepts as conditions)
+            System.err.println(s"ERROR: Auction search keywords already set: $auctionKeywords")
+            sys.exit(2)
+          }
+        }
+        case Seq(option: String, value: String) => {
+          if (option.startsWith("--")) {
+            val optionName = option.stripPrefix("--")
+            if (validOptions contains optionName ) { optionName -> value }
+            else { invalidOption(option, validOptions) }
+          } else {
+            // System.err.println(s"Ignoring unknown option-value: '$option' '$value'")
+          }
+        }
+      }
+
+    // remove the empty tuples (optName, value) inside the collection, and then convert it to
+    // a Map, which is the one to be returned
+    listOptVals.filterNot(tupleOptVal => tupleOptVal == (())).
+      map { case (k: String, v: String) => (k -> v) }.toMap
+  }
+
+  def invalidOption(invalidOption: String, validOptions: Seq[String]): Unit = {
+
+    var errMsg = new StringBuilder(4*1024)
+
+    errMsg.append(s"ERROR: Unknown option '$invalidOption'\n\n")
+
+    errMsg.append("Valid command-line options are:\n")
+    validOptions foreach (option => errMsg.append(s"    --$option value\n"))
+
+    System.err.println(errMsg)
+    sys.exit(3)
+  }
+
+  def eBayWork(eBayApplicationId: String, cmdLineOpts: Map[String, String]): Unit = {
     try {
       // initialize service end-point configuration
       val config = new ClientConfig()
 
-      config.setApplicationId(eBayApplicationId.get)
+      config.setApplicationId(eBayApplicationId)
 
-      //create a service client
+      // create a service client
       val serviceClient =
         FindingServiceClientFactory.getServiceClient(config)
-      println("serviceClient: " + serviceClient.getClass.getName)
 
-      //create request object
+      // create request object
       val request = new FindItemsByKeywordsRequest()
 
-      //set request parameters
-      request.setKeywords(cmdLineArgs.mkString(" "))
-      println("request: " + request.getClass.getName)
+      // set request parameters
+      request.setKeywords(cmdLineOpts(argKeyForKeywordSearch))
 
       val resultsReturnedPerPage = 10
       val pi = new PaginationInput()
@@ -64,18 +175,17 @@ object FindItem {
 
       request.setPaginationInput(pi)
 
-      //call service (rate-limiting by the eBay API can still occur)
+      // call service (rate-limiting by the eBay API can still occur)
       val result = serviceClient.findItemsByKeywords(request)
-      println("result: " + result.getClass.getName)
 
-      //output result
+      // output result
       println("Ack = " + result.getAck())
 
       println("Found " + result.getSearchResult().getCount() + " items.")
 
       val items = result.getSearchResult().getItem()
 
-      for(item <- items) {
+      for {item <- items} {
         reportItem(item)
       }
     } catch {
@@ -83,31 +193,7 @@ object FindItem {
     }
   }
 
-  def usage(availableFilters: Array[String]) {
-
-    var usageStr = new StringBuilder(4*1024)
-
-    usageStr.append("Usage:\n\tFindItem [--filter1 value1] " +
-                    "[--filter2 value2 ...] keywords to search...\n\n")
-
-    usageStr.append("Possible filters:\n")
-    availableFilters foreach
-      (filter => usageStr.append(s"    --$filter value\n"))
-
-    usageStr.append("\nYou need to set the environment variable EBAY_API_APP_ID " +
-                    "with the value of a valid eBay API Application ID.")
-
-    println(usageStr)
-    sys.exit(1)
-  }
-
-  def missingEnvirVar() {
-    System.err.println("Error: Environment variable EBAY_API_APP_ID must " +
-                       "have the value of a valid eBay API Application ID.")
-    sys.exit(2)
-  }
-
-  def reportItem(item: SearchItem) {
+  def reportItem(item: SearchItem): Unit = {
 
     var reportStr = new StringBuilder(32*1024)
 
@@ -120,7 +206,9 @@ object FindItem {
       reportStr.append("condtion:\n")
       reportStr.append("  conditionDisplayName: " + condition.getConditionDisplayName + "\n")
       reportStr.append("  any: " + condition.getAny + "\n")
-    } else reportStr.append("condition: null\n")
+    } else {
+      reportStr.append("condition: null\n")
+    }
 
     reportStr.append("viewItemURL: " + item.getViewItemURL + "\n")
     reportStr.append("galleryURL: " + item.getGalleryURL + "\n")
@@ -147,7 +235,9 @@ object FindItem {
       reportStr.append("  oneDayShippingAvailable: " + shippingInfo.isOneDayShippingAvailable + "\n")
       reportStr.append("  handlingTime: " + shippingInfo.getHandlingTime + "\n")
       reportStr.append("  any: " + shippingInfo.getAny + "\n")
-    } else reportStr.append("shippingInfo: null\n")
+    } else {
+      reportStr.append("shippingInfo: null\n")
+    }
 
     reportStr.append("sellingStatus: " + item.getSellingStatus + "\n")
 
@@ -162,9 +252,13 @@ object FindItem {
       if (endTime != null) {
         val dateFormatter = new SimpleDateFormat("MM/dd/yyyy HH:MM:SS z")
         reportStr.append("   endTime: " + dateFormatter.format(endTime.getTime()) + "\n")
-      } else reportStr.append("   endTime: null\n")
+      } else {
+        reportStr.append("   endTime: null\n")
+      }
       reportStr.append("   any: " + listingInfo.getAny + "\n")
-    } else reportStr.append("listingInfo: null" + "\n")
+    } else {
+      reportStr.append("listingInfo: null" + "\n")
+    }
 
     reportStr.append("returnsAccepted: " + item.isReturnsAccepted + "\n")
     reportStr.append("galleryPlusPictureURL: " + item.getGalleryPlusPictureURL + "\n")
@@ -179,4 +273,3 @@ object FindItem {
   }
 
 }
-
