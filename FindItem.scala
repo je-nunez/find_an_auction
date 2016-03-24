@@ -14,6 +14,7 @@ import com.ebay.services.client.ClientConfig
 import com.ebay.services.client.FindingServiceClientFactory
 import com.ebay.services.finding.FindItemsByKeywordsRequest
 import com.ebay.services.finding.ItemFilterType
+import com.ebay.services.finding.ItemFilter
 import com.ebay.services.finding.FindItemsByKeywordsResponse
 // import com.ebay.services.finding.FindingServicePortType
 import com.ebay.services.finding.PaginationInput
@@ -25,7 +26,10 @@ object FindItem {
   // this is a special key in the map of the command-line arguments:
   // the value of this key in the parsing of the command-line arguments will
   // the keywords to search for items in auctions
-  val argKeyForKeywordSearch = "auctionKeywords"
+  val argOptionForKeywordSearch: String = "auctionKeywords"
+  val argOptionNumbItemsToReturn = "numb_items_to_return"
+
+  val defaultItemsPerResultPage = 10
 
   def main(cmdLineArgs: Array[String]) : Unit = {
 
@@ -33,7 +37,8 @@ object FindItem {
     // to satisfy by the server. E.g., filters as to a max-price limit, etc,
     // on the items returned.
     val availableItemFilters =
-      ItemFilterType.values().map(_.toString.toLowerCase)
+      ItemFilterType.values().map(_.toString.toLowerCase).to[ArrayBuffer]
+    availableItemFilters.prepend(argOptionNumbItemsToReturn)
 
     if (cmdLineArgs.length == 0) {
       // show usage lines and exit with exit-code 1
@@ -49,7 +54,7 @@ object FindItem {
     }
 
     val cmdLineOpts = parseCmdLine(cmdLineArgs, availableItemFilters)
-    if (!cmdLineOpts.contains(argKeyForKeywordSearch)) {
+    if (!cmdLineOpts.contains(argOptionForKeywordSearch)) {
       errorCantFindSearchKeywords(cmdLineOpts)
     }
 
@@ -112,7 +117,7 @@ object FindItem {
         case Seq(auctionKeyword: String, "") => {
           if (auctionKeywords.isEmpty) {
             auctionKeywords = auctionKeyword
-            argKeyForKeywordSearch -> auctionKeyword
+            argOptionForKeywordSearch -> auctionKeyword
           } else {
             // This is not expected to happen, although there is no side effect since the program
             // exits immediately (and it is difficult to check the formal specification, since it
@@ -166,20 +171,22 @@ object FindItem {
       val request = new FindItemsByKeywordsRequest()
 
       // set request parameters
-      request.setKeywords(cmdLineOpts(argKeyForKeywordSearch))
+      request.setKeywords(cmdLineOpts(argOptionForKeywordSearch))
 
-      val resultsReturnedPerPage = 10
+      var resultsReturnedPerPage = defaultItemsPerResultPage
+      if (cmdLineOpts.contains(argOptionNumbItemsToReturn)) {
+        resultsReturnedPerPage = cmdLineOpts(argOptionNumbItemsToReturn).toInt
+      }
       val pi = new PaginationInput()
-
       pi.setEntriesPerPage(resultsReturnedPerPage)
-
       request.setPaginationInput(pi)
+
+      buildItemFilters(cmdLineOpts, request.getItemFilter())
 
       // call service (rate-limiting by the eBay API can still occur)
       val result = serviceClient.findItemsByKeywords(request)
 
-      // output result
-      println("Ack = " + result.getAck())
+      println("Ack = " + result.getAck()) // acknowledge status from server
 
       println("Found " + result.getSearchResult().getCount() + " items.")
 
@@ -190,6 +197,18 @@ object FindItem {
       }
     } catch {
       case ex: Exception => { ex.printStackTrace() }
+    }
+  }
+
+  def buildItemFilters(cmdLineOpts: Map[String, String],
+                       accumulRes: java.util.List[ItemFilter]): Unit = {
+
+    for {(k, v) <- cmdLineOpts
+         if (k != argOptionForKeywordSearch && k != argOptionNumbItemsToReturn) } {
+      val eBayFilter = new ItemFilter()
+      eBayFilter.setParamName(k)
+      eBayFilter.setParamValue(v)
+      accumulRes.add(eBayFilter)
     }
   }
 
