@@ -207,6 +207,11 @@ object FindItem {
          if (k != argOptionForKeywordSearch && k != argOptionNumbItemsToReturn) } {
       val eBayFilter = new ItemFilter()
       eBayFilter.setParamName(k)
+      // eBay uses formal uppercase in its Enum values, while we took them to lowercase as
+      // more adequate for command-line options to the end-user, so she/he doesn't need
+      // to use Caps-Locks while entering them: now we have to take it back to upper-case
+      val javaEnum = ItemFilterType.valueOf(k.toUpperCase)
+      eBayFilter.setName(javaEnum)
       eBayFilter.setParamValue(v)
       accumulRes.add(eBayFilter)
     }
