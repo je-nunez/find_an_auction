@@ -96,18 +96,21 @@ update the provided `finding.jar`.
 
 To do so:
 
-     1. Download the new FindingService.wsdl from [https://developer.ebay.com/webservices/finding/latest/FindingService.wsdl](https://developer.ebay.com/webservices/finding/latest/FindingService.wsdl)
+     1. Download the new FindingService.wsdl from
 
-     2. Copy this new `FindingService.wsdl` over the old `FindingService.wsdl` in the Finding Kit for Enhaced Search SDK source directory tree
+          https://developer.ebay.com/webservices/finding/latest/FindingService.wsdl
+
+     2. Copy this new file FindingService.wsdl over the existing FindingService.wsdl
+        in the source directory tree of the Finding Kit for Enhaced Search SDK
 
      3. Run:
 
-         ant compile-wsdl
-         ant compile
-         ant build
-         ant jar
+             ant compile-wsdl
+             ant compile
+             ant build
+             ant jar
 
-It will tell you at the last of these instructions something like:
+It will print at the last of these instructions something like:
 
      jar:
            [jar] Building jar: <path-to-new>/lib/finding.jar
