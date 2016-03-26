@@ -68,7 +68,7 @@ You need to create a free eBay API account at [https://go.developer.ebay.com/wha
 
 Create your Application ID in eBay there.
 
-You need to download the eBay Java SDK archive at [https://go.developer.ebay.com/javasdk](https://go.developer.ebay.com/javasdk)
+You need to download the eBay Finding Kit for Enhaced Search SDK for Java at [https://go.developer.ebay.com/javasdk](https://go.developer.ebay.com/javasdk)
 
 Unzip the archive and add the `src/lib/finding.jar`
 and the `src/lib/log4j-1.2.16.jar` JAR files to
@@ -78,7 +78,7 @@ Set the environment variable `EBAY_API_APP_ID` with
 the value of your eBay API Application ID you created
 above.
 
-# Possible improvements
+# Possible improvements to this program
 
 Report the eBay item auctions in JSON format, using the
 `play.api.libs.json._` library for this. The issue is
@@ -87,6 +87,32 @@ all these pages have to be requested first from eBay (eBay
 have a limit on the number of API of requests per day, in
 the order of thousands only), then concatenated, and the
 result converted into JSON string to output.
+
+# Updating the Finding Kit for Enhaced Search client-side JAR
+
+It is possible that there are new updates to the server-side
+Finding Kit for Enhaced Search API, and then you may want to
+update the provided `finding.jar`.
+
+To do so:
+
+     1. Download the new FindingService.wsdl from [https://developer.ebay.com/webservices/finding/latest/FindingService.wsdl](https://developer.ebay.com/webservices/finding/latest/FindingService.wsdl)
+
+     2. Copy this new `FindingService.wsdl` over the old `FindingService.wsdl` in the Finding Kit for Enhaced Search SDK source directory tree
+
+     3. Run:
+
+         ant compile-wsdl
+         ant compile
+         ant build
+         ant jar
+
+It will tell you at the last of these instructions something like:
+
+     jar:
+           [jar] Building jar: <path-to-new>/lib/finding.jar
+
+Make sure this new `finding.jar` is in your CLASSPATH to use it.
 
 # Inspiration
 
