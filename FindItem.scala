@@ -186,14 +186,17 @@ object FindItem {
       // call service (rate-limiting by the eBay API can still occur)
       val result = serviceClient.findItemsByKeywords(request)
 
-      println("Ack = " + result.getAck()) // acknowledge status from server
+      println("Query Results = " + result.getAck())  // acknowledge status from server
 
-      println("Found " + result.getSearchResult().getCount() + " items.")
+      val proceedToReport = result.getAck().value().toLowerCase != "failure"   // or == "success"
+      if (proceedToReport) {
+        println("Found " + result.getSearchResult().getCount() + " items.")
 
-      val items = result.getSearchResult().getItem()
+        val items = result.getSearchResult().getItem()
 
-      for {item <- items} {
-        reportItem(item)
+        for {item <- items} {
+          reportItem(item)
+        }
       }
     } catch {
       case ex: Exception => { ex.printStackTrace() }
@@ -206,7 +209,7 @@ object FindItem {
     for {(k, v) <- cmdLineOpts
          if (k != argOptionForKeywordSearch && k != argOptionNumbItemsToReturn) } {
       val eBayFilter = new ItemFilter()
-      eBayFilter.setParamName(k)
+      eBayFilter.setParamName(convertToCamelNotation(k))
       // eBay uses formal uppercase in its Enum values, while we took them to lowercase as
       // more adequate for command-line options to the end-user, so she/he doesn't need
       // to use Caps-Locks while entering them: now we have to take it back to upper-case
@@ -215,6 +218,10 @@ object FindItem {
       eBayFilter.setParamValue(v)
       accumulRes.add(eBayFilter)
     }
+  }
+
+  def convertToCamelNotation(str: String): String = {
+    str.split('_').map(_.capitalize).mkString("")
   }
 
   def reportItem(item: SearchItem): Unit = {
@@ -227,7 +234,7 @@ object FindItem {
 
     val condition = item.getCondition
     if (condition != null) {   // result is from Java, hence != null
-      reportStr.append("condtion:\n")
+      reportStr.append("condition:\n")
       reportStr.append("  conditionDisplayName: " + condition.getConditionDisplayName + "\n")
       reportStr.append("  any: " + condition.getAny + "\n")
     } else {

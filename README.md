@@ -16,7 +16,7 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
      EBAY_API_APP_ID="my eBay API Application ID"
      export EBAY_API_APP_ID
       
-     ./FindItem.scala  new apple macbook 15 laptop
+     ./FindItem.scala  "new apple macbook 15 laptop"
           itemId: 291555615515
           title: NEW SEALED 2015 APPLE 15" MACBOOK PRO 2.2GHz i7 16GB 256GB MJLQ2LL/A RETINA
           globalId: EBAY-US
