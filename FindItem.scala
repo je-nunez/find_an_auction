@@ -228,13 +228,16 @@ object FindItem {
     reportStr.append("title: " + item.getTitle + "\n")
     reportStr.append("globalId: " + item.getGlobalId + "\n")
 
-    val condition = item.getCondition
-    if (condition != null) {   // result is from Java, hence != null
-      reportStr.append("condition:\n")
-      reportStr.append("  conditionDisplayName: " + condition.getConditionDisplayName + "\n")
-      reportStr.append("  any: " + condition.getAny + "\n")
-    } else {
-      reportStr.append("condition: null\n")
+    val condition = Option(item.getCondition)
+    condition match {
+      case Some(cond) => {
+        reportStr.append("condition:\n")
+        reportStr.append("  conditionDisplayName: " + cond.getConditionDisplayName + "\n")
+        reportStr.append("  any: " + cond.getAny + "\n")
+      }
+      case None => {
+        reportStr.append("condition: null\n")
+      }
     }
 
     reportStr.append("viewItemURL: " + item.getViewItemURL + "\n")
@@ -253,38 +256,47 @@ object FindItem {
     reportStr.append("storeInfo: " + item.getStoreInfo + "\n")
     reportStr.append("sellerInfo: " + item.getSellerInfo + "\n")
 
-    val shippingInfo = item.getShippingInfo
-    if (shippingInfo != null) {
-      reportStr.append("shippingInfo:\n")
-      reportStr.append("  type: " + shippingInfo.getShippingType + "\n")
-      reportStr.append("  shipToLocations: " + shippingInfo.getShipToLocations + "\n")
-      reportStr.append("  expeditedShipping: " + shippingInfo.isExpeditedShipping + "\n")
-      reportStr.append("  oneDayShippingAvailable: " + shippingInfo.isOneDayShippingAvailable + "\n")
-      reportStr.append("  handlingTime: " + shippingInfo.getHandlingTime + "\n")
-      reportStr.append("  any: " + shippingInfo.getAny + "\n")
-    } else {
-      reportStr.append("shippingInfo: null\n")
+    val shippingInfo = Option(item.getShippingInfo)
+    shippingInfo match {
+      case Some(shipping) => {
+        reportStr.append("shippingInfo:\n")
+        reportStr.append("  type: " + shipping.getShippingType + "\n")
+        reportStr.append("  shipToLocations: " + shipping.getShipToLocations + "\n")
+        reportStr.append("  expeditedShipping: " + shipping.isExpeditedShipping + "\n")
+        reportStr.append("  oneDayShippingAvailable: " + shipping.isOneDayShippingAvailable + "\n")
+        reportStr.append("  handlingTime: " + shipping.getHandlingTime + "\n")
+        reportStr.append("  any: " + shipping.getAny + "\n")
+      }
+      case None => {
+        reportStr.append("shippingInfo: null\n")
+      }
     }
 
     reportStr.append("sellingStatus: " + item.getSellingStatus + "\n")
 
-    val listingInfo = item.getListingInfo
-    if (listingInfo != null) {
-      reportStr.append("listingInfo:\n")
-      reportStr.append("   listingType: " + listingInfo.getListingType + "\n")
-      reportStr.append("   buyItNowAvailable: " + listingInfo.isBuyItNowAvailable + "\n")
-      reportStr.append("   buyItNowPrice: " + listingInfo.getBuyItNowPrice + "\n")
-      reportStr.append("   bestOfferEnabled: " + listingInfo.isBestOfferEnabled + "\n")
-      val endTime = listingInfo.getEndTime
-      if (endTime != null) {
-        val dateFormatter = new SimpleDateFormat("MM/dd/yyyy HH:MM:SS z")
-        reportStr.append("   endTime: " + dateFormatter.format(endTime.getTime()) + "\n")
-      } else {
-        reportStr.append("   endTime: null\n")
+    val listingInfo = Option(item.getListingInfo)
+    listingInfo match {
+      case Some(listing) => {
+        reportStr.append("listingInfo:\n")
+        reportStr.append("   listingType: " + listing.getListingType + "\n")
+        reportStr.append("   buyItNowAvailable: " + listing.isBuyItNowAvailable + "\n")
+        reportStr.append("   buyItNowPrice: " + listing.getBuyItNowPrice + "\n")
+        reportStr.append("   bestOfferEnabled: " + listing.isBestOfferEnabled + "\n")
+        val endTime = Option(listing.getEndTime)
+        endTime match {
+          case Some(endTm) => {
+            val dateFormatter = new SimpleDateFormat("MM/dd/yyyy HH:MM:SS z")
+            reportStr.append("   endTime: " + dateFormatter.format(endTm.getTime()) + "\n")
+          }
+          case None => {
+            reportStr.append("   endTime: null\n")
+          }
+        }
+        reportStr.append("   any: " + listing.getAny + "\n")
       }
-      reportStr.append("   any: " + listingInfo.getAny + "\n")
-    } else {
-      reportStr.append("listingInfo: null" + "\n")
+      case None => {
+        reportStr.append("listingInfo: null" + "\n")
+      }
     }
 
     reportStr.append("returnsAccepted: " + item.isReturnsAccepted + "\n")
