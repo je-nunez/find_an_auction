@@ -62,7 +62,7 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
 
 # Requirements
 
-This program has been tested with Scala 2.11.6.
+This program has been tested with Scala 2.11.6 and Scala 2.11.8
 
 You need to create a free eBay API account at [https://go.developer.ebay.com/what-ebay-api] (https://go.developer.ebay.com/what-ebay-api)
 
@@ -77,6 +77,15 @@ your CLASSPATH.
 Set the environment variable `EBAY_API_APP_ID` with
 the value of your eBay API Application ID you created
 above.
+
+# Debug Communication from the client with the eBay Backend Service
+
+eBay compiles its client Finding Kit for Enhaced Search SDK in Java
+using the Simple Logging Facade for Java (SLF4J): see
+[http://developer.ebay.com/DevZone/javasdk-jaxb/docs/readme.htm](http://developer.ebay.com/DevZone/javasdk-jaxb/docs/readme.htm)
+One possible backend is the Apache Log4j. This repository has a
+simple `log4j.properties` file to debug the communication from the
+client with the eBay Backend Service.
 
 # Possible improvements to this program
 
