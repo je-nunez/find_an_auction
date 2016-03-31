@@ -7,6 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import java.lang.Exception
 import java.text.SimpleDateFormat
+import java.util.TimeZone
 
 // import org.apache.log4j.{Logger,Level}
 
@@ -222,6 +223,10 @@ object FindItem {
 
   def reportItem(item: SearchItem): Unit = {
 
+    // this report eBay Item is long, since the eBay Java SDK returns many fields in an
+    // eBay SearchItem instance: it tries to build a temporary string with all the fields
+    // to report, before printing it
+
     var reportStr = new StringBuilder(32*1024)
 
     reportStr.append("itemId: " + item.getItemId + "\n")
@@ -229,22 +234,33 @@ object FindItem {
     reportStr.append("globalId: " + item.getGlobalId + "\n")
 
     val condition = Option(item.getCondition)
-    condition match {
-      case Some(cond) => {
-        reportStr.append("condition:\n")
-        reportStr.append("  conditionDisplayName: " + cond.getConditionDisplayName + "\n")
-        reportStr.append("  any: " + cond.getAny + "\n")
-      }
-      case None => {
-        reportStr.append("condition: null\n")
-      }
-    }
+    reportStr.append(condition match {
+                       case Some(cond) => {
+                         "condition:\n" +
+                         "  conditionDisplayName: " + cond.getConditionDisplayName + "\n" +
+                         "  any: " + cond.getAny + "\n"
+                       }
+                       case None => {
+                         "condition: null\n"
+                       }
+      })
 
     reportStr.append("viewItemURL: " + item.getViewItemURL + "\n")
     reportStr.append("galleryURL: " + item.getGalleryURL + "\n")
 
     reportStr.append("subtitle: " + item.getSubtitle + "\n")
-    reportStr.append("primaryCategory: " + item.getPrimaryCategory + "\n")
+    val primaryCategory = Option(item.getPrimaryCategory)
+    reportStr.append(primaryCategory match {
+                       case Some(primCateg) => {
+                         "primaryCategory:\n" +
+                         "  categoryName: " + primCateg.getCategoryName + "\n" +
+                         "  categoryId: " + primCateg.getCategoryId + "\n"
+                       }
+                       case None => {
+                         "primaryCategory: null" + "\n"
+                       }
+      })
+
     reportStr.append("secondaryCategory: " + item.getSecondaryCategory + "\n")
     reportStr.append("charityId: " + item.getCharityId + "\n")
     reportStr.append("productId: " + item.getProductId + "\n")
@@ -257,31 +273,69 @@ object FindItem {
     reportStr.append("sellerInfo: " + item.getSellerInfo + "\n")
 
     val shippingInfo = Option(item.getShippingInfo)
-    shippingInfo match {
-      case Some(shipping) => {
-        reportStr.append("shippingInfo:\n")
-        reportStr.append("  type: " + shipping.getShippingType + "\n")
-        reportStr.append("  shipToLocations: " + shipping.getShipToLocations + "\n")
-        reportStr.append("  expeditedShipping: " + shipping.isExpeditedShipping + "\n")
-        reportStr.append("  oneDayShippingAvailable: " + shipping.isOneDayShippingAvailable + "\n")
-        reportStr.append("  handlingTime: " + shipping.getHandlingTime + "\n")
-        reportStr.append("  any: " + shipping.getAny + "\n")
+    reportStr.append(shippingInfo match {
+                       case Some(shipping) => {
+                         "shippingInfo:\n" +
+                         "  type: " + shipping.getShippingType + "\n" +
+                         "  shipToLocations: " + shipping.getShipToLocations + "\n" +
+                         "  expeditedShipping: " + shipping.isExpeditedShipping + "\n" +
+                         "  oneDayShippingAvailable: " + shipping.isOneDayShippingAvailable + "\n" +
+                         "  handlingTime: " + shipping.getHandlingTime + "\n" +
+                         "  any: " + shipping.getAny + "\n"
+                       }
+                       case None => {
+                         "shippingInfo: null\n"
+                       }
+      })
+
+    val sellingStatus = Option(item.getSellingStatus)
+    sellingStatus match {
+      case Some(sellStatus) => {
+        reportStr.append("sellingStatus:\n" +
+                         "  currentPrice: value: " + sellStatus.getCurrentPrice.getValue + "\n" +
+                         "  currentPrice: currencyId: " +
+                         sellStatus.getCurrentPrice.getCurrencyId + "\n" +
+                         "  convertedCurrentPrice: value: " +
+                         sellStatus.getConvertedCurrentPrice.getValue + "\n" +
+                         "  convertedCurrentPrice: currencyId: " +
+                         sellStatus.getConvertedCurrentPrice.getCurrencyId + "\n" +
+                         "  getBidCount: " + sellStatus.getBidCount + "\n" +
+                         "  sellingState: " + sellStatus.getSellingState + "\n")
+
+        val timeLeft = Option(sellStatus.getTimeLeft)
+        timeLeft match {
+          case Some(tmLeft) => {
+            reportStr.append("  timeLeft:")
+            if (tmLeft.getMonths != 0) {
+              reportStr.append(" " + tmLeft.getMonths + " months")
+            }
+            if (tmLeft.getDays != 0) {
+              reportStr.append(" " + tmLeft.getDays + " days")
+            }
+            val hours = tmLeft.getHours
+            val minutes = tmLeft.getMinutes
+            val seconds = tmLeft.getSeconds
+            reportStr.append(f" $hours%02d:$minutes%02d:$seconds%02d\n")
+          }
+          case None => {
+            reportStr.append("  timeLeft: null" + "\n")
+          }
+        }
+        reportStr.append("  any: " + sellStatus.getAny + "\n")
       }
       case None => {
-        reportStr.append("shippingInfo: null\n")
+        reportStr.append("sellingStatus: null" + "\n")
       }
     }
-
-    reportStr.append("sellingStatus: " + item.getSellingStatus + "\n")
 
     val listingInfo = Option(item.getListingInfo)
     listingInfo match {
       case Some(listing) => {
-        reportStr.append("listingInfo:\n")
-        reportStr.append("   listingType: " + listing.getListingType + "\n")
-        reportStr.append("   buyItNowAvailable: " + listing.isBuyItNowAvailable + "\n")
-        reportStr.append("   buyItNowPrice: " + listing.getBuyItNowPrice + "\n")
-        reportStr.append("   bestOfferEnabled: " + listing.isBestOfferEnabled + "\n")
+        reportStr.append("listingInfo:\n" +
+                         "   listingType: " + listing.getListingType + "\n" +
+                         "   buyItNowAvailable: " + listing.isBuyItNowAvailable + "\n" +
+                         "   buyItNowPrice: " + listing.getBuyItNowPrice + "\n" +
+                         "   bestOfferEnabled: " + listing.isBestOfferEnabled + "\n")
         val endTime = Option(listing.getEndTime)
         endTime match {
           case Some(endTm) => {
@@ -299,14 +353,13 @@ object FindItem {
       }
     }
 
-    reportStr.append("returnsAccepted: " + item.isReturnsAccepted + "\n")
-    reportStr.append("galleryPlusPictureURL: " + item.getGalleryPlusPictureURL + "\n")
-    reportStr.append("compatibility: " + item.getCompatibility + "\n")
-    reportStr.append("distance: " + item.getDistance + "\n")
-    reportStr.append("delimiter: " + item.getDelimiter + "\n")
-    reportStr.append("any: " + item.getAny + "\n")
-
-    reportStr.append("----")
+    reportStr.append("returnsAccepted: " + item.isReturnsAccepted + "\n" +
+                     "galleryPlusPictureURL: " + item.getGalleryPlusPictureURL + "\n" +
+                     "compatibility: " + item.getCompatibility + "\n" +
+                     "distance: " + item.getDistance + "\n" +
+                     "delimiter: " + item.getDelimiter + "\n" +
+                     "any: " + item.getAny + "\n" +
+                     "----")
 
     println(reportStr)
   }

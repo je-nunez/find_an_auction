@@ -20,11 +20,15 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
           itemId: 291555615515
           title: NEW SEALED 2015 APPLE 15" MACBOOK PRO 2.2GHz i7 16GB 256GB MJLQ2LL/A RETINA
           globalId: EBAY-US
-          condition: com.ebay.services.finding.Condition@489115ef
+          condition:
+            conditionDisplayName: New
+            any: []
           viewItemURL: http://www.ebay.com/itm/NEW-SEALED-2015-APPLE-15-MACBOOK-PRO-2-2GHz-i7-16GB-256GB-MJLQ2LL-A-RETINA-/291555615515
           galleryURL: http://thumbs4.ebaystatic.com/m/mhNU6VAlmCSGcHK_Zq4QOzw/140.jpg
           subtitle: BRAND NEW FACTORY SEALED WITH FORCE TOUCH TRACKPAD!
-          primaryCategory: com.ebay.services.finding.Category@3857f613
+          primaryCategory:
+            categoryName: Apple Laptops
+            categoryId: 111422
           secondaryCategory: null
           charityId: null
           productId: null
@@ -45,7 +49,16 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
             expeditedShipping: true
             oneDayShippingAvailable: true
             handlingTime: 1
-          sellingStatus: com.ebay.services.finding.SellingStatus@198b6731
+            any: []
+          sellingStatus:
+            currentPrice: value: 1789.0
+            currentPrice: currencyId: USD
+            convertedCurrentPrice: value: 1789.0
+            convertedCurrentPrice: currencyId: USD
+            getBidCount: null
+            sellingState: Active
+            timeLeft: 14:45:53
+            any: []
           listingInfo:
              listingType: FixedPrice
              buyItNowAvailable: false
@@ -58,7 +71,8 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
           compatibility: null
           distance: null
           delimiter: null
-          any: [[isMultiVariationListing: null], [discountPriceInfo: null], [topRatedListing: null]]
+          any: []
+          ... [other results]...
 
 # Requirements
 
