@@ -81,16 +81,18 @@ above.
 # Debug Communication from the client with the eBay Backend Service
 
 eBay compiles its client Finding Kit for Enhaced Search SDK in Java
-using the Simple Logging Facade for Java (SLF4J): see
+using the Apache Log4j Logging Framework (the eBay Java Trading SDK
+seems to use Simple Logging Facade for Java (SLF4J) though, but we don't
+use the latter, only the former: see
 [http://developer.ebay.com/DevZone/javasdk-jaxb/docs/readme.htm](http://developer.ebay.com/DevZone/javasdk-jaxb/docs/readme.htm)
-One possible backend is the Apache Log4j.
+for the eBay Java Trading SDK).
 
 This repository has a simple `log4j.properties` file to debug the
 communication from the client with the eBay Backend Service. It will
 show the raw SOAP XML messages used in the requests from the client
 and the responses from the server, like the request:
 
-       [INFO ] 2016-03-29 21:20:58,926
+       [INFO ] 2016-03-30 21:19:54,886 [main][JAXWSHandler.java:62]: com.ebay.common.handler.JAXWSHandler: sending soap request message ...
            [...omitted ...]
            <findItemsByKeywordsRequest xmlns="http://www.ebay.com/marketplace/search/v1/services">
              <paginationInput>
