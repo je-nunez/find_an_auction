@@ -165,6 +165,17 @@ compile the latest version, with all the current item filters
 [Updating the Finding Kit for Enhaced Search client-side JAR](#updating-the-finding-kit-for-enhaced-search-client-side-jar)
 below in this page.
 
+Since the command-line options depends on the version of the eBay
+SDK you have, then some options may be missing (e.g., older
+versions did not support or expose `--authorized_seller_only value`),
+and this program only reflects all those underlying item filters and
+does not explain, or validate or interpret them, then this program
+does not use a command-line parsing package for Scala, like `scopt`,
+etc., which is useful in the more normal case where the program
+controls its own command-line options (which is not the case here,
+since this program only exposes all and whatever filters the
+underlying eBay Finding Kit for Enhaced Search SDK supports).
+
 # Requirements
 
 This program has been tested with Scala 2.11.6 and Scala 2.11.8
