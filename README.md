@@ -16,6 +16,10 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
      EBAY_API_APP_ID="my eBay API Application ID"
      export EBAY_API_APP_ID
       
+     # The program also supports command-line options to filter the
+     # request, e.g., to set a minimun and/or maximum price, etc.
+     # (See the section "Command-line options" below.)
+
      ./FindItem.scala  "new apple macbook 15 laptop"
           itemId: 291555615515
           title: NEW SEALED 2015 APPLE 15" MACBOOK PRO 2.2GHz i7 16GB 256GB MJLQ2LL/A RETINA
@@ -73,6 +77,93 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
           delimiter: null
           any: []
           ... [other results]...
+
+# Command-line options
+
+The command-line options allows to set constraints together to the query
+sent to the eBay server. For example, a minimum and/or maximum price, only
+certain type of payment (like PayPal), etc.
+
+These command-line options are not given by the program itself: they are
+given by the underlying eBay Finding Kit for Enhaced Search SDK for Java
+as item-filters, and what this program does is to expose all these
+item-filters as possible command-line options to the user.
+
+The format of these command-line options is:
+
+        --option_name  value   [... --other_option_name value ...]   "keywords for item"
+
+where `value` is the value given for the `option_name`: the interpretation
+and validation of the `value` according to the `option_name` is left to the
+underlying eBay Finding Kit for Enhaced Search SDK for Java, in the client-side,
+which would report an exception if a `value` is invalid.
+
+These are the possible `--option_name` that this program understands:
+
+        --numb_items_to_return value
+        --condition value
+        --currency value
+        --end_time_from value
+        --mod_time_from value
+        --end_time_to value
+        --exclude_auto_pay value
+        --best_offer_only value
+        --featured_only value
+        --feedback_score_max value
+        --feedback_score_min value
+        --free_shipping_only value
+        --get_it_fast_only value
+        --hide_duplicate_items value
+        --available_to value
+        --located_in value
+        --local_pickup_only value
+        --local_search_only value
+        --listing_type value
+        --lots_only value
+        --max_bids value
+        --min_bids value
+        --max_price value
+        --min_price value
+        --payment_method value
+        --max_quantity value
+        --min_quantity value
+        --seller value
+        --exclude_seller value
+        --exclude_category value
+        --world_of_good_only value
+        --max_distance value
+        --seller_business_type value
+        --top_rated_seller_only value
+        --sold_items_only value
+        --charity_only value
+        --listed_in value
+        --expedited_shipping_type value
+        --max_handling_time value
+        --returns_accepted_only value
+        --value_box_inventory value
+        --outlet_seller_only value
+        --authorized_seller_only value
+        --start_time_from value
+        --start_time_to value
+
+For example:
+
+        ./FindItem.scala --numb_items_to_return 10 --condition New --currency USD --min_price 5 --max_price 20  "lead holder 2 mm"
+
+to query eBay for `lead holder 2mm`, in `New` condition, whose
+prices are between 5 and 20 USD, and to request only 10 items.
+
+The option `--numb_items_to_return value` is the only option
+processed by this program itself (ie., not passed to the
+underlying eBay SDK).
+
+Some options in the list above depends on the version of the eBay
+Finding Kit for Enhaced Search SDK for Java that you are using,
+so you may have less or more options available: if you want to
+compile the latest version, with all the current item filters
+(command-line options), please see the section 
+[Updating the Finding Kit for Enhaced Search client-side JAR](#updating-the-finding-kit-for-enhaced-search-client-side-jar)
+below in this page.
 
 # Requirements
 
