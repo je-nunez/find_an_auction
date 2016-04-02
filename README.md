@@ -80,7 +80,7 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
 
 # Command-line options
 
-The command-line options allows to set constraints together to the query
+The command-line options allow to set constraints together to the query
 sent to the eBay server. For example, a minimum and/or maximum price, only
 certain type of payment (like PayPal), etc.
 
@@ -157,7 +157,7 @@ The option `--numb_items_to_return value` is the only option
 processed by this program itself (ie., not passed to the
 underlying eBay SDK).
 
-Some options in the list above depends on the version of the eBay
+Some options in the list above depend on the version of the eBay
 Finding Kit for Enhaced Search SDK for Java that you are using,
 so you may have less or more options available: if you want to
 compile the latest version, with all the current item filters
@@ -165,7 +165,7 @@ compile the latest version, with all the current item filters
 [Updating the Finding Kit for Enhaced Search client-side JAR](#updating-the-finding-kit-for-enhaced-search-client-side-jar)
 below in this page.
 
-Since the command-line options depends on the version of the eBay
+Since the command-line options depend on the version of the eBay
 SDK you have, then some options may be missing (e.g., older
 versions did not support or expose `--authorized_seller_only value`),
 and this program only reflects all those underlying item filters and
@@ -194,7 +194,7 @@ Set the environment variable `EBAY_API_APP_ID` with
 the value of your eBay API Application ID you created
 above.
 
-# Debug Communication from the client with the eBay Backend Service
+# Debug Communication with the eBay Backend Service
 
 eBay compiles its client Finding Kit for Enhaced Search SDK in Java
 using the Apache Log4j Logging Framework (the eBay Java Trading SDK
@@ -243,6 +243,14 @@ all these pages have to be requested first from eBay (eBay
 have a limit on the number of API of requests per day, in
 the order of thousands only), then concatenated, and the
 result converted into JSON string to output.
+
+eBay also offers `OutputSelectorType` as to what output
+to return in the replies, and `AspectFilter`s, where the
+aspects of an item have this role, as eBay says:
+
+*characteristic of an item in a category. For example, "Shoes Size" or "Style"
+might be aspects of the Men's Shoes category, while "Genre" and "Album Type"
+could be aspects of the Music CDs category.*
 
 # Updating the Finding Kit for Enhaced Search client-side JAR
 
