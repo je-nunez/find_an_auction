@@ -21,6 +21,7 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
      # (See the section "Command-line options" below.)
 
      ./FindItem.scala  "new apple macbook 15 laptop"
+          [... previous results ...]
           itemId: 291555615515
           title: NEW SEALED 2015 APPLE 15" MACBOOK PRO 2.2GHz i7 16GB 256GB MJLQ2LL/A RETINA
           globalId: EBAY-US
@@ -80,9 +81,14 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
 
 # Command-line options
 
-The command-line options allow to set constraints together to the query
-sent to the eBay server. For example, a minimum and/or maximum price, only
+The command-line options allow to set constraints in the query sent to the
+eBay server. For example, to return items only between a minimum and/or
+maximum price, and/or condition (New, Used, etc), and/or which accept only
 certain type of payment (like PayPal), etc.
+
+When command-line options are given, the program interprets them all as
+a single `AND`-conjunction, so each returned item must satisfy all of
+these options.
 
 These command-line options are not given by the program itself: they are
 given by the underlying eBay Finding Kit for Enhaced Search SDK for Java
@@ -146,22 +152,25 @@ These are the possible `--option_name` that this program understands:
         --start_time_from value
         --start_time_to value
 
-For example:
-
-        ./FindItem.scala --numb_items_to_return 10 --condition New --currency USD --min_price 5 --max_price 20  "lead holder 2 mm"
-
-to query eBay for `lead holder 2mm`, in `New` condition, whose
-prices are between 5 and 20 USD, and to request only 10 items.
-
 The option `--numb_items_to_return value` is the only option
 processed by this program itself (ie., not passed to the
 underlying eBay SDK).
 
+For example:
+
+        ./FindItem.scala --numb_items_to_return 10 --condition New \
+                         --currency USD --min_price 5 --max_price 20  \
+                         "lead holder 2 mm"
+
+to query eBay for `lead holder 2mm`, in `New` condition, whose
+prices are between 5 and 20 USD, and to request only 10 items.
+
 Some options in the list above depend on the version of the eBay
 Finding Kit for Enhaced Search SDK for Java that you are using,
-so you may have less or more options available: if you want to
-compile the latest version, with all the current item filters
-(command-line options), please see the section 
+so you may have less or more options available than those show
+above: if you want to compile the latest version, with all the
+current item filters (command-line options), please see the
+section 
 [Updating the Finding Kit for Enhaced Search client-side JAR](#updating-the-finding-kit-for-enhaced-search-client-side-jar)
 below in this page.
 
@@ -169,7 +178,7 @@ Since the command-line options depend on the version of the eBay
 SDK you have, then some options may be missing (e.g., older
 versions did not support or expose `--authorized_seller_only value`),
 and this program only reflects all those underlying item filters and
-does not explain, or validate or interpret them, then this program
+does not explain, validate or interpret them, then this program
 does not use a command-line parsing package for Scala, like `scopt`,
 etc., which is useful in the more normal case where the program
 controls its own command-line options (which is not the case here,

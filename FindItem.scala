@@ -1,4 +1,4 @@
-#!/usr/bin/env scala -deprecation -J-Xmx4g -J-XX:NewRatio=4
+#!/usr/bin/env scala -deprecation -J-Xmx512m -J-XX:NewRatio=4
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
