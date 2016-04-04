@@ -207,17 +207,29 @@ object FindItem {
   def buildItemFilters(cmdLineOpts: Map[String, String],
                        accumulRes: java.util.List[ItemFilter]): Unit = {
 
+    var options2Filters = scala.collection.mutable.Map[String, ItemFilter]()
+
     for {(k, v) <- cmdLineOpts
          if (k != argOptionForKeywordSearch && k != argOptionNumbItemsToReturn) } {
-      val eBayFilter = new ItemFilter()
       // eBay uses formal uppercase in its Enum values, while we took them to lowercase as
       // more adequate for command-line options to the end-user, so she/he doesn't need
       // to use Caps-Locks while entering them: now we have to take it back to upper-case
-      val javaEnum = ItemFilterType.valueOf(k.toUpperCase)
-      eBayFilter.setName(javaEnum)
+
+      var eBayFilter: ItemFilter = null
+
+      if (options2Filters isDefinedAt k.toUpperCase) {
+        eBayFilter = options2Filters(k.toUpperCase)
+      } else {
+        eBayFilter = new ItemFilter()
+        // initialize the new ItemFilter:
+        val javaEnum = ItemFilterType.valueOf(k.toUpperCase)
+        eBayFilter.setName(javaEnum)
+        // keep track of this new ItemFilter
+        options2Filters += k.toUpperCase -> eBayFilter
+        accumulRes.add(eBayFilter)
+      }
       val valList = eBayFilter.getValue
       valList.append(v)
-      accumulRes.add(eBayFilter)
     }
   }
 
