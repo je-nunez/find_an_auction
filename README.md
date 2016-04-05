@@ -12,10 +12,10 @@ subject to change. The documentation can be inaccurate.
 To find for an auction for a new Apple 15 inches MacBook laptop:
 
      # set required environment variable
-     
+
      EBAY_API_APP_ID="my eBay API Application ID"
      export EBAY_API_APP_ID
-      
+
      # The program also supports command-line options to filter the
      # request, e.g., to set a minimun and/or maximum price, etc.
      # (See the section "Command-line options" below.)
@@ -86,10 +86,6 @@ eBay server. For example, to return items only between a minimum and/or
 maximum price, and/or condition (New, Used, etc), and/or which accept only
 certain type of payment (like PayPal), etc.
 
-When command-line options are given, the program interprets them all as
-a single `AND`-conjunction, so each returned item must satisfy all of
-these options.
-
 These command-line options are not given by the program itself: they are
 given by the underlying eBay Finding Kit for Enhaced Search SDK for Java
 as item-filters, and what this program does is to expose all these
@@ -156,7 +152,24 @@ The option `--numb_items_to_return value` is the only option
 processed by this program itself (ie., not passed to the
 underlying eBay SDK).
 
-For example:
+When command-line options are given, the program interprets them all as
+a single `AND`-conjunction, so each returned item must satisfy all of
+these options. The only exception to this rule is when there appears
+multiple times a same `--option_name`, in which case it is understood
+as to request those items which have any of `value[i]` for
+`option_name`. For example, in the request:
+
+         ... --located_in US --located_in CN ...
+
+it is understood those items whose location is either the USA or China,
+but the rest of the command-line is a single `AND`-conjunction with
+any of these values in `located_in`. (Or, alternatively, when a same
+`--option_name` appears multiple times in the command-line, it may be
+understood as set membership, e.g., in the previous example, to return
+those items whose location is in the set { USA, China }, AND-ed with
+any other option(s) which may also appear in the above command-line.)
+
+As a more general example we may see:
 
         ./FindItem.scala --numb_items_to_return 10 --condition New \
                          --currency USD --min_price 5 --max_price 20  \
@@ -170,7 +183,7 @@ Finding Kit for Enhaced Search SDK for Java that you are using,
 so you may have less or more options available than those show
 above: if you want to compile the latest version, with all the
 current item filters (command-line options), please see the
-section 
+section
 [Updating the Finding Kit for Enhaced Search client-side JAR](#updating-the-finding-kit-for-enhaced-search-client-side-jar)
 below in this page.
 

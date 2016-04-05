@@ -55,7 +55,9 @@ object FindItem {
     }
 
     val cmdLineOpts = parseCmdLine(cmdLineArgs, availableItemFilters)
-    if (!cmdLineOpts.contains(argOptionForKeywordSearch)) {
+    // The search keywords must have been given in the command-line
+    val keywordsSearch = cmdLineOpts.find(_._1 == argOptionForKeywordSearch)
+    if (keywordsSearch isEmpty) {
       errorCantFindSearchKeywords(cmdLineOpts)
     }
 
@@ -86,63 +88,64 @@ object FindItem {
     sys.exit(2)
   }
 
-  def errorCantFindSearchKeywords(foundOptions: Map[String, String]): Unit = {
+  def errorCantFindSearchKeywords(foundOptions: List[(String, String)]): Unit = {
     System.err.println("Error: Couldn't find item search keywords in the " +
                        "command-line. Found these options:\n\t" +
                        foundOptions.toString)
     sys.exit(3)
   }
 
-  def parseCmdLine(cmdLineArgs: Array[String], validOptions: Seq[String]): Map[String, String] = {
-    // return a list of tuples (optionName, optionValue) ... with the options and their values
-    // given in the cmdLineArgs and which are in the universe of validOptions. For an option
-    // --optName where this optName is not in validOptions, then exit the program, since it is not
-    // an allowable option.
-    //  Note: we could have used 'scopt' package to parse the cmd-line, but we don't know in fact
-    //        the validOptions and their type-values they should have: we just take all
-    //        eBay's ItemFilterType.values(), which are many, as allowable cmd-line options for
-    //        this program, whose values are String, and pass these values as the user gives them
-    //        to the underlying eBay Finding Filter service to validate it, because there are many
-    //        and we can't know the syntactic/semantic restrictions for each.
+  def parseCmdLine(cmdLineArgs: Array[String], validOptions: Seq[String]): List[(String, String)] =
+    {
+      // return a list of tuples (optionName, optionValue) ... with the options and their values
+      // given in the cmdLineArgs and which are in the universe of validOptions. (For an option
+      // --optName where this optName is not in validOptions, then exit the program, since it is
+      // not an allowable option.)
+      //  Note: we could have used 'scopt' package to parse the cmd-line, but we don't know in fact
+      //        the validOptions and their type-values they should have: we just take all eBay's
+      //        ItemFilterType.values(), which are many, as allowable cmd-line options for this
+      //        program, whose values are String, and pass these values as the user gives then to
+      //        the underlying eBay Finding Filter service to validate it, because there are many
+      //        and we can't know the syntactic/semantic restrictions for each.
 
-    // all auction filters takes two tokens, '--filterName value', and the last string contains the
-    // search keywords for the auction: we add an empty string to make the length of the array even
+      // all auction filters takes two tokens, '--filterName value', and the last string contains the
+      // search keywords for the auction: we add an empty string to make the length of the array even
 
-    var cmdArgs = cmdLineArgs.to[ArrayBuffer]
-    if (cmdArgs.length % 2 == 1) { cmdArgs += "" }
+      var cmdArgs = cmdLineArgs.to[ArrayBuffer]
+      if (cmdArgs.length % 2 == 1) { cmdArgs += "" }
 
-    var auctionKeywords: String = ""    // ie., the auction search keywords
+      var auctionKeywords: String = ""    // the item search keywords given by the user
 
-    val listOptVals = cmdArgs.iterator.sliding(2,1).toList.collect {
-        case Seq("--help", ignored: String) => { showUsage(validOptions, 0) }
-        case Seq(auctionKeyword: String, "") => {
-          if (auctionKeywords.isEmpty) {
-            auctionKeywords = auctionKeyword
-            argOptionForKeywordSearch -> auctionKeyword
-          } else {
-            // This is not expected to happen, although there is no side effect since the program
-            // exits immediately (and it is difficult to check the formal specification, since it
-            // is only given by whatever filter names the auction search accepts as conditions)
-            System.err.println(s"ERROR: Auction search keywords already set: $auctionKeywords")
-            sys.exit(2)
+      val listOptVals = cmdArgs.iterator.sliding(2,1).toList.collect {
+          case Seq("--help", ignored: String) => { showUsage(validOptions, 0) }
+          case Seq(auctionKeyword: String, "") => {
+            if (auctionKeywords.isEmpty) {
+              auctionKeywords = auctionKeyword
+              argOptionForKeywordSearch -> auctionKeyword
+            } else {
+              // This is not expected to happen, although there is no side effect since the program
+              // exits immediately (and it is difficult to check the formal specification, since it
+              // is only given by whatever filter names the auction search accepts as conditions)
+              System.err.println(s"ERROR: Auction search keywords already set: $auctionKeywords")
+              sys.exit(2)
+            }
+          }
+          case Seq(option: String, value: String) => {
+            if (option.startsWith("--")) {
+              val optionName = option.stripPrefix("--")
+              if (validOptions contains optionName ) { optionName -> value }
+              else { invalidOption(option, validOptions) }
+            } else {
+              // System.err.println(s"Ignoring unknown option-value: '$option' '$value'")
+            }
           }
         }
-        case Seq(option: String, value: String) => {
-          if (option.startsWith("--")) {
-            val optionName = option.stripPrefix("--")
-            if (validOptions contains optionName ) { optionName -> value }
-            else { invalidOption(option, validOptions) }
-          } else {
-            // System.err.println(s"Ignoring unknown option-value: '$option' '$value'")
-          }
-        }
-      }
 
-    // remove the empty tuples (optName, value) inside the collection, and then convert it to
-    // a Map, which is the one to be returned
-    listOptVals.filterNot(tupleOptVal => tupleOptVal == (())).
-      map { case (k: String, v: String) => (k -> v) }.toMap
-  }
+      // remove the empty tuples (optName, value) inside the collection, and then convert it to
+      // a List, which is the one to be returned
+      listOptVals.filterNot(tupleOptVal => tupleOptVal == (())).
+        map { case (k: String, v: String) => (k -> v) }.toList
+    }
 
   def invalidOption(invalidOption: String, validOptions: Seq[String]): Unit = {
 
@@ -157,7 +160,7 @@ object FindItem {
     sys.exit(3)
   }
 
-  def eBayWork(eBayApplicationId: String, cmdLineOpts: Map[String, String]): Unit = {
+  def eBayWork(eBayApplicationId: String, cmdLineOpts: List[(String, String)]): Unit = {
     try {
       // initialize service end-point configuration
       val config = new ClientConfig()
@@ -171,13 +174,18 @@ object FindItem {
       // create request object
       val request = new FindItemsByKeywordsRequest()
 
-      // set request parameters
-      request.setKeywords(cmdLineOpts(argOptionForKeywordSearch))
+      // set the keywords to search for the items of interest
+      val keywordsSearch = cmdLineOpts.find(_._1 == argOptionForKeywordSearch)
+      request.setKeywords(keywordsSearch.get._2)
 
-      var resultsReturnedPerPage = defaultItemsPerResultPage
-      if (cmdLineOpts.contains(argOptionNumbItemsToReturn)) {
-        resultsReturnedPerPage = cmdLineOpts(argOptionNumbItemsToReturn).toInt
-      }
+      val cmdLnOptItemsPerPage = cmdLineOpts.find(_._1 == argOptionNumbItemsToReturn)
+      val resultsReturnedPerPage = cmdLnOptItemsPerPage match {
+          case Some((argOptionNumbItemsToReturn, valueItemsPerPage)) => {
+            valueItemsPerPage.toInt
+          }
+          case None => { defaultItemsPerResultPage }
+        }
+
       val pi = new PaginationInput()
       pi.setEntriesPerPage(resultsReturnedPerPage)
       request.setPaginationInput(pi)
@@ -204,7 +212,7 @@ object FindItem {
     }
   }
 
-  def buildItemFilters(cmdLineOpts: Map[String, String],
+  def buildItemFilters(cmdLineOpts: List[(String, String)],
                        accumulRes: java.util.List[ItemFilter]): Unit = {
 
     var options2Filters = scala.collection.mutable.Map[String, ItemFilter]()
