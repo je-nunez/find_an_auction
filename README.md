@@ -270,8 +270,9 @@ eBay also offers `OutputSelectorType` as to what output
 to return in the replies, and `AspectFilter`s, where the
 aspects of an item have this role, as eBay says:
 
-*characteristic of an item in a category. For example, "Shoes Size" or "Style"
-might be aspects of the Men's Shoes category, while "Genre" and "Album Type"
+*[an aspect is the] characteristic of an item in a category.
+For example, "Shoes Size" or "Style" might be aspects of
+the Men's Shoes category, while "Genre" and "Album Type"
 could be aspects of the Music CDs category.*
 
 # Updating the Finding Kit for Enhaced Search client-side JAR
