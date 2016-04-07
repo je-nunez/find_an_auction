@@ -30,20 +30,25 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
             any: []
           viewItemURL: http://www.ebay.com/itm/NEW-SEALED-2015-APPLE-15-MACBOOK-PRO-2-2GHz-i7-16GB-256GB-MJLQ2LL-A-RETINA-/291555615515
           galleryURL: http://thumbs4.ebaystatic.com/m/mhNU6VAlmCSGcHK_Zq4QOzw/140.jpg
+          galleryPlusPictureURL: [http://galleryplus.ebayimg.com/ws/web/291555615515_1_4_1.jpg]
+          returnsAccepted: true
           subtitle: BRAND NEW FACTORY SEALED WITH FORCE TOUCH TRACKPAD!
-          primaryCategory:
-            categoryName: Apple Laptops
-            categoryId: 111422
-          secondaryCategory: null
-          charityId: null
-          productId: null
-          paymentMethod: [PayPal]
-          autoPay: true
-          postalCode: null
-          location: USA
-          country: US
-          storeInfo: null
-          sellerInfo: null
+          sellingStatus:
+            currentPrice: value: 1789.0
+            currentPrice: currencyId: USD
+            convertedCurrentPrice: value: 1789.0
+            convertedCurrentPrice: currencyId: USD
+            getBidCount: null
+            sellingState: Active
+            timeLeft: 23 days 14:37:36
+            any: []
+          listingInfo:
+            listingType: FixedPrice
+            buyItNowAvailable: false
+            buyItNowPrice: null
+            bestOfferEnabled: false
+            endTime: 04/30/2016 14:04:00 EDT
+            any: []
           shippingInfo:
             type: FlatDomesticCalculatedInternational
             shipToLocations: [US, CA, GB, AU, AT, BE, FR, DE,
@@ -55,28 +60,23 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
             oneDayShippingAvailable: true
             handlingTime: 1
             any: []
-          sellingStatus:
-            currentPrice: value: 1789.0
-            currentPrice: currencyId: USD
-            convertedCurrentPrice: value: 1789.0
-            convertedCurrentPrice: currencyId: USD
-            getBidCount: null
-            sellingState: Active
-            timeLeft: 14:45:53
-            any: []
-          listingInfo:
-             listingType: FixedPrice
-             buyItNowAvailable: false
-             buyItNowPrice: null
-             bestOfferEnabled: false
-             endTime: 03/31/2016 14:03:00 EDT
-             any: []
-          returnsAccepted: true
-          galleryPlusPictureURL: [http://galleryplus.ebayimg.com/ws/web/291555615515_1_4_1.jpg]
+          primaryCategory:
+            categoryName: Apple Laptops
+            categoryId: 111422
+          secondaryCategory:
+          charityId: null
+          productId: null
+          paymentMethod: [PayPal]
+          autoPay: true
+          postalCode: null
+          location: USA
+          country: US
+          storeInfo: null
+          sellerInfo: null
           compatibility: null
           distance: null
           delimiter: null
-          any: []
+          any: [[isMultiVariationListing: null], [discountPriceInfo: null], [topRatedListing: null]]
           ... [other results]...
 
 # Command-line options
