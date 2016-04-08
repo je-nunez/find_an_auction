@@ -25,6 +25,7 @@ import com.ebay.services.finding.SellingStatus
 import com.ebay.services.finding.ListingInfo
 import com.ebay.services.finding.ShippingInfo
 import com.ebay.services.finding.Category
+import com.ebay.services.finding.ProductId
 
 
 object FindItem {
@@ -263,6 +264,7 @@ object FindItem {
     reportStr.append("viewItemURL: " + item.getViewItemURL + "\n")
     reportStr.append("galleryURL: " + item.getGalleryURL + "\n")
     reportStr.append("galleryPlusPictureURL: " + item.getGalleryPlusPictureURL + "\n")
+    reportStr.append("paymentMethod: " + item.getPaymentMethod + "\n")
     reportStr.append("returnsAccepted: " + item.isReturnsAccepted + "\n")
 
     reportStr.append("subtitle: " + item.getSubtitle + "\n")
@@ -273,10 +275,9 @@ object FindItem {
 
     reportStr.append(categoryToStr("primaryCategory", Option(item.getPrimaryCategory)))
     reportStr.append(categoryToStr("secondaryCategory", Option(item.getSecondaryCategory)))
+    reportStr.append(productIdToStr(Option(item.getProductId)))
 
     reportStr.append("charityId: " + item.getCharityId + "\n" +
-                     "productId: " + item.getProductId + "\n" +
-                     "paymentMethod: " + item.getPaymentMethod + "\n" +
                      "autoPay: " + item.isAutoPay + "\n" +
                      "postalCode: " + item.getPostalCode + "\n" +
                      "location: " + item.getLocation + "\n" +
@@ -418,7 +419,21 @@ object FindItem {
         "  handlingTime: " + shipping.getHandlingTime + "\n" +
         "  any: " + shipping.getAny + "\n"
       }
-     }
+    }
+  }
+
+  def productIdToStr(productId: Option[ProductId]): String = {
+
+    productId match {
+      case None => {
+        "productId: null\n"
+      }
+      case Some(product) => {
+        "productId:\n" +
+        "  type: " + product.getType + "\n" +
+        "  value: " + product.getValue + "\n"
+      }
+    }
   }
 
 }
