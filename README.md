@@ -1,6 +1,6 @@
-# Find an auction
+# Find items in eBay
 
-Find items if you want to buy them from eBay
+Find items and other information from eBay, prices, locations, end times of auctions or buy-it-now, from the command-line.
 
 # WIP
 
