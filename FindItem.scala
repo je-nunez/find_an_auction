@@ -1,6 +1,9 @@
 #!/usr/bin/env scala -deprecation -J-Xmx512m -J-XX:NewRatio=4
+// scalastyle:off header.matches
 
+// scalastyle:off underscore.import
 import scala.collection.JavaConversions._
+// scalastyle:on underscore.import
 import scala.collection.mutable.ArrayBuffer
 
 // import play.api.libs.json._
@@ -27,6 +30,12 @@ import com.ebay.services.finding.ShippingInfo
 import com.ebay.services.finding.Category
 import com.ebay.services.finding.ProductId
 
+
+// This program reports items found through the eBay platform, without using
+// any reporting library (e.g., not using play.api.libs.json), so it needs
+// to repeat some labels, etc.
+// scalastyle:off multiple.string.literals
+// scalastyle:off regex
 
 object FindItem {
 
@@ -229,7 +238,9 @@ object FindItem {
       // more adequate for command-line options to the end-user, so she/he doesn't need
       // to use Caps-Locks while entering them: now we have to take it back to upper-case
 
+      // scalastyle:off null
       var eBayFilter: ItemFilter = null
+      // scalastyle:on null
 
       if (options2Filters isDefinedAt k.toUpperCase) {
         eBayFilter = options2Filters(k.toUpperCase)
@@ -437,3 +448,7 @@ object FindItem {
   }
 
 }
+
+// scalastyle:on regex
+// scalastyle:on multiple.string.literals
+// scalastyle:on header.matches
