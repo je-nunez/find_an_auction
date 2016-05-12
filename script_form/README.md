@@ -262,7 +262,7 @@ Report the eBay item auctions in JSON format, using the
 `play.api.libs.json._` library for this. The issue is
 that the auctions are returned by eBay paginated, hence,
 all these pages have to be requested first from eBay (eBay
-have a limit on the number of API of requests per day, in
+has a limit on the number of API of requests per day, in
 the order of thousands only), then concatenated, and the
 result converted into JSON string to output.
 
@@ -309,29 +309,11 @@ Make sure this new `finding.jar` is in your CLASSPATH to use it.
 The initial idea of this program is a Java sample
 authored by boyang inside eBay Java SDK archive.
 
-This SDK also supports more options, like the Trading
+The eBay SDK also supports other APIs, like the Trading
 API (Buying, Selling and After Sale support), besides
-the Finding API, which supports Searching for products
-and items (besides Buying), and is the one we are
-using here (we don't use Buying though, the Find gives
-the URL where the auction can be seen). Details are
-here: [https://go.developer.ebay.com/api-features-comparison](https://go.developer.ebay.com/api-features-comparison)
-
-There are APIs for other programming languages besides
-Java (used in Scala through the JVM), here:
-[https://go.developer.ebay.com/ebay-sdks](https://go.developer.ebay.com/ebay-sdks)
-
-The initial idea of this program is a Java sample
-authored by boyang inside eBay Java SDK archive.
-
-This SDK also supports more options, like the Trading
-API (Buying, Selling and After Sale support), besides
-the Finding API, which supports Searching for products
-and items (besides Buying), and is the one we are
-using here (we don't use Buying though, the Find gives
-the URL where the auction can be seen). Details are
-here:
-[https://go.developer.ebay.com/api-features-comparison](https://go.developer.ebay.com/api-features-comparison)
+the Finding API, which only supports Searching for
+products and items (not Buying), and is the one we are
+using here. Details are here: [https://go.developer.ebay.com/api-features-comparison](https://go.developer.ebay.com/api-features-comparison)
 
 There are APIs for other programming languages besides
 Java (used in Scala through the JVM), here:

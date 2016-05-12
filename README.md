@@ -7,6 +7,19 @@ Find items and other information from eBay, prices, locations, end times of auct
 This project is a *work in progress*. The implementation is *incomplete* and
 subject to change. The documentation can be inaccurate.
 
+# SBT vs Scala script form
+
+There is an older form of the Scala program which runs in a Scala script form,
+and is in the subdirectory [script_form](script_form/). In this document we
+present the SBT form, which is easier, and the above subdirectory explains the
+script form, which is very similar.
+
+**Note**: The only difference between the two is that SBT downloads and installs
+the eBay Finding Kit for Enhaced Search SDK for Java automatically, so it is
+not applicable the section
+[Updating the Finding Kit for Enhaced Search client-side JAR](#updating-the-finding-kit-for-enhaced-search-client-side-jar)
+below, which is more for the script form.
+
 # Example:
 
 To find for an auction for a new Apple 15 inches MacBook laptop:
@@ -20,7 +33,7 @@ To find for an auction for a new Apple 15 inches MacBook laptop:
      # request, e.g., to set a minimun and/or maximum price, etc.
      # (See the section "Command-line options" below.)
 
-     ./FindItem.scala  "new apple macbook 15 laptop"
+     sbt "run \"new apple macbook 15 laptop\""
           [... previous results ...]
           itemId: 291555615515
           title: NEW SEALED 2015 APPLE 15" MACBOOK PRO 2.2GHz i7 16GB 256GB MJLQ2LL/A RETINA
@@ -171,9 +184,8 @@ any other option(s) which may also appear in the above command-line.)
 
 As a more general example we may see:
 
-        ./FindItem.scala --numb_items_to_return 10 --condition New \
-                         --currency USD --min_price 5 --max_price 20  \
-                         "lead holder 2 mm"
+     sbt "run --numb_items_to_return 10 --condition New --currency USD
+              --min_price 5 --max_price 20  \"lead holder 2 mm\""
 
 to query eBay for `lead holder 2mm`, in `New` condition, whose
 prices are between 5 and 20 USD, and to request only 10 items.
@@ -262,7 +274,7 @@ Report the eBay item auctions in JSON format, using the
 `play.api.libs.json._` library for this. The issue is
 that the auctions are returned by eBay paginated, hence,
 all these pages have to be requested first from eBay (eBay
-have a limit on the number of API of requests per day, in
+has a limit on the number of API of requests per day, in
 the order of thousands only), then concatenated, and the
 result converted into JSON string to output.
 
@@ -309,29 +321,11 @@ Make sure this new `finding.jar` is in your CLASSPATH to use it.
 The initial idea of this program is a Java sample
 authored by boyang inside eBay Java SDK archive.
 
-This SDK also supports more options, like the Trading
+The eBay SDK also supports other APIs, like the Trading
 API (Buying, Selling and After Sale support), besides
-the Finding API, which supports Searching for products
-and items (besides Buying), and is the one we are
-using here (we don't use Buying though, the Find gives
-the URL where the auction can be seen). Details are
-here: [https://go.developer.ebay.com/api-features-comparison](https://go.developer.ebay.com/api-features-comparison)
-
-There are APIs for other programming languages besides
-Java (used in Scala through the JVM), here:
-[https://go.developer.ebay.com/ebay-sdks](https://go.developer.ebay.com/ebay-sdks)
-
-The initial idea of this program is a Java sample
-authored by boyang inside eBay Java SDK archive.
-
-This SDK also supports more options, like the Trading
-API (Buying, Selling and After Sale support), besides
-the Finding API, which supports Searching for products
-and items (besides Buying), and is the one we are
-using here (we don't use Buying though, the Find gives
-the URL where the auction can be seen). Details are
-here:
-[https://go.developer.ebay.com/api-features-comparison](https://go.developer.ebay.com/api-features-comparison)
+the Finding API, which only supports Searching for
+products and items (not Buying), and is the one we are
+using here. Details are here: [https://go.developer.ebay.com/api-features-comparison](https://go.developer.ebay.com/api-features-comparison)
 
 There are APIs for other programming languages besides
 Java (used in Scala through the JVM), here:
