@@ -15,10 +15,12 @@ present the SBT form, which is easier, and the above subdirectory explains the
 script form, which is very similar.
 
 **Note**: The only difference between the two is that SBT downloads and installs
-the eBay Finding Kit for Enhaced Search SDK for Java automatically, so it is
-not applicable the section
+the eBay Finding Kit for Enhaced Search SDK for Java automatically, so the
+section
 [Updating the Finding Kit for Enhaced Search client-side JAR](#updating-the-finding-kit-for-enhaced-search-client-side-jar)
-below, which is more for the script form.
+is not applicable to it, which is more for the script form. Furthermore, the
+SBT job may fail if the URL address provided by eBay changes. (In such a case,
+you may need to apply then the instructions below to set the `CLASSPATH`.)
 
 # Example:
 

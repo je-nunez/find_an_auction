@@ -33,6 +33,7 @@ getEBayFindingKitEnhaced := {
       "http://developer.ebay.com/DevZone/codebase/javasdk-jaxb/FindingKitJava_1.0.zip"
 
     // download URL and extract only the eBayFindingJAR, not all other files in the zip archive
+    // (this SBT job may fail if the above eBayFindingKitURL address becomes invalid).
     IO.unzipURL(new URL(eBayFindingKitURL), new File(locationToExtractEBayAPI),
                 new ExactFilter(eBayFindingJAR))
   } else {
